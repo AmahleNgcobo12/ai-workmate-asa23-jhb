@@ -1,0 +1,12 @@
+CREATE TABLE public.conversations (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid NOT NULL, title text NOT NULL DEFAULT 'New conversation', messages jsonb NOT NULL DEFAULT '[]'::jsonb, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.conversations TO authenticated;
+GRANT ALL ON public.conversations TO service_role;
+ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Own conversations" ON public.conversations FOR ALL TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+CREATE INDEX conversations_user_updated_idx ON public.conversations(user_id, updated_at DESC);
+CREATE TABLE public.workplace_outputs (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid NOT NULL, tool text NOT NULL, title text NOT NULL, content text NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.workplace_outputs TO authenticated;
+GRANT ALL ON public.workplace_outputs TO service_role;
+ALTER TABLE public.workplace_outputs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Own outputs" ON public.workplace_outputs FOR ALL TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+CREATE INDEX outputs_user_created_idx ON public.workplace_outputs(user_id, created_at DESC);
